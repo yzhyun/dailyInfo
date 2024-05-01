@@ -1,6 +1,7 @@
 # news/scraper.py
 import feedparser
 import requests
+from datetime import datetime
 from bs4 import BeautifulSoup
 
 
@@ -12,8 +13,9 @@ def scrape_articles(keyword):
     for entry in feed.entries:
         title = entry.title
         link = entry.link
-        published = entry.published
-        articles.append({'title': title, 'link': link, 'published': published})
+        published_date = datetime.strptime(entry.published, '%a, %d %b %Y %H:%M:%S %Z')
+        #published = entry.published
+        articles.append({'title': title, 'link': link, 'published': published_date})
         #링크의 내용을 따라 본문을 가져와야 함.
         #html의 내용을 가져와서 저장하고 ai로 간추리는 방식을 선택하자
 
