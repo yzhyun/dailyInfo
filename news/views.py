@@ -6,7 +6,8 @@ from .scraper import *
 def scrape(request, keyword):
     articles = scrape_articles(keyword)
     for article in articles:
-        Article.objects.create(title=article['title'], link=article['link'], published=article['published'])
+        Article.objects.create(title=article['title'], link=article['link'], published=article['published'],
+                               content=article['content'], keyword=article['keyword'])
     return HttpResponse(f"Scraping successful! Scraped {len(articles)} articles.")
 
 def rss(request, keyword):
