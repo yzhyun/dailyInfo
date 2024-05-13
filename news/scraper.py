@@ -42,7 +42,8 @@ def clean_article_body(body_text):
 
 
 def scrape_articles(keyword):
-    url = f"https://news.google.com/rss/search?q={keyword}&hl=ko&gl=KR&ceid=KR:ko"  #구글
+    formatted_keyword = keyword.replace(" ", "+")
+    url = f"https://news.google.com/rss/search?q={formatted_keyword}&hl=ko&gl=KR&ceid=KR:ko"  #구글
     feed = feedparser.parse(url)
     articles = []
     cnt = 0
@@ -51,11 +52,15 @@ def scrape_articles(keyword):
 
         title = entry.title
         link = entry.link
+
         published_date = datetime.strptime(entry.published, '%a, %d %b %Y %H:%M:%S %Z')
         #published = entry.published
         response = requests.get(link, allow_redirects=True)
         # 리디렉션된 URL 확인
         redirected_url = response.url
+
+        if "https://www.news1.kr" in redirected_url:
+            continue
 
         # URL에서 웹페이지의 HTML을 가져옵니다.
         response = requests.get(redirected_url)
@@ -70,32 +75,6 @@ def scrape_articles(keyword):
         cnt += 1
         if cnt == 10:
             break
-
-    return articles
-
-    #
-    # count = 0
-    # for article in soup.find_all('article'):
-    #     title_element = article.find('h3', class_='ipQwMb ekueJc RD0gLb')
-    #     title = title_element.get_text() if title_element else 'No title'
-    #
-    #     link_element = article.find('a', href=True)
-    #     if link_element:
-    #         link = link_element['href']
-    #         full_link = f'https://news.google.com{link}'
-    #         article_response = requests.get(full_link, headers=headers, allow_redirects=True)
-    #         article_soup = BeautifulSoup(article_response.text, 'html.parser')
-    #         content_element = article_soup.find('div', class_='article-body')  # Check correct class or tag
-    #         content = content_element.get_text() if content_element else 'No content'
-    #
-    #         articles.append({'title': title, 'link': full_link, 'content': content})
-    #         count += 1
-    #         if count == 10:
-    #             break
-    # for article in articles:
-    #     print(article['title'])
-    #     print(article['link'])
-    #     print(article['content'])
 
     return articles
 
