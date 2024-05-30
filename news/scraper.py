@@ -7,7 +7,6 @@ from bs4 import BeautifulSoup
 
 def clean_article_body(body_text):
     # BeautifulSoup 객체를 생성하여 HTML을 파싱합니다.
-    print(body_text)
     soup = BeautifulSoup(body_text, 'html.parser')
 
     # for element in soup.select('div.advertisement, script'):
@@ -40,7 +39,14 @@ def clean_article_body(body_text):
 
     return most_used_parent_text
 
-
+def check_url(redirected_url, avlCompList):
+    isTrue = False
+    for avlComp in avlCompList:
+        if avlComp in redirected_url:
+            print(redirected_url + " ### 스크랩 가능 신문사")
+            isTrue = True
+            break
+    return isTrue
 def scrape_articles(keyword):
     formatted_keyword = keyword.replace(" ", "+")
     url = f"https://news.google.com/rss/search?q={formatted_keyword}&hl=ko&gl=KR&ceid=KR:ko"  #구글
@@ -49,7 +55,6 @@ def scrape_articles(keyword):
     cnt = 0
 
     for entry in feed.entries:
-
         title = entry.title
         link = entry.link
 
@@ -59,12 +64,24 @@ def scrape_articles(keyword):
         # 리디렉션된 URL 확인
         redirected_url = response.url
 
-        if "https://www.news1.kr" in redirected_url:
-            continue
 
         # URL에서 웹페이지의 HTML을 가져옵니다.
         response = requests.get(redirected_url)
-        content = clean_article_body(response.text)
+
+        avlCompList = ["https://www.news1.kr", "https://www.donga.com", "https://news.nate.com", "https://news.zum.com", ]
+        if check_url(redirected_url, avlCompList):
+            content = clean_article_body(response.text)
+        else:
+            content = clean_article_body(response.text)
+
+
+        # for avlComp in avlCompList:
+        #     if avlComp in redirected_url :
+        #         print(redirected_url + "### 스크랩 가능 신문사")
+        #         content = clean_article_body(response.text)
+        #     else:
+        #         print(redirected_url + "### 스크랩 불가능 신문사")
+        #         content = ""
 
         articles.append({'title': title, 'link': redirected_url, 'published': published_date, 'content': content
                         , 'keyword': keyword})
